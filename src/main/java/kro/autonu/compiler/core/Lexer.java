@@ -19,7 +19,7 @@ record Lexer(List<String> sourceCode) implements Serializable {
         sourceCode = List.copyOf(sourceCode);
     }
 
-    public List<Token> tokenize() {
+    List<Token> tokenize() {
         final List<Token> tokens = new ArrayList<>();
         for (String line : sourceCode) {
             Matcher matcher = PATTERN.matcher(line);
