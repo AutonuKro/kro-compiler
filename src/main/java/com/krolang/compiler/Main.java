@@ -1,6 +1,6 @@
-package kro.autonu.compiler;
+package com.krolang.compiler;
 
-import kro.autonu.compiler.core.Compiler;
+import com.krolang.compiler.core.Compiler;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -15,7 +15,7 @@ public class Main {
         if (args.length != 1) {
             System.err.println("Incorrect number of arguments");
             System.out.println("Correct way to use 'kro <input.kro>' ");
-            System.exit(1);
+            System.exit(64);
         }
         Path currentDir = Path.of("");
         String sourceFile = currentDir.toAbsolutePath() + File.separator + args[0];

@@ -1,6 +1,4 @@
-package kro.autonu.compiler.core;
-
-import kro.autonu.compiler.type.Token;
+package com.krolang.compiler.core.lexer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * @author autonu.kro
  */
-record Lexer(List<String> sourceCode) implements Serializable {
+public record Lexer(List<String> sourceCode) implements Serializable {
 
     private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'[a-zA-Z]+'|^[a-zA-Z][a-zA-Z0-9]*$|[+\\-*]|[(){}\\[\\]]");
 
@@ -19,7 +17,7 @@ record Lexer(List<String> sourceCode) implements Serializable {
         sourceCode = List.copyOf(sourceCode);
     }
 
-    List<Token> tokenize() {
+    public List<Token> tokenize() {
         final List<Token> tokens = new ArrayList<>();
         for (String line : sourceCode) {
             Matcher matcher = PATTERN.matcher(line);

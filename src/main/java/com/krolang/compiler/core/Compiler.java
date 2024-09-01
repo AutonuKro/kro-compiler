@@ -1,6 +1,10 @@
-package kro.autonu.compiler.core;
+package com.krolang.compiler.core;
 
-import kro.autonu.compiler.type.Token;
+import com.krolang.compiler.core.lexer.Lexer;
+import com.krolang.compiler.core.lexer.Token;
+import com.krolang.compiler.core.parser.Expression;
+import com.krolang.compiler.core.parser.Interpreter;
+import com.krolang.compiler.core.parser.Parser;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,7 +32,10 @@ public class Compiler implements Serializable {
         try (Stream<String> lines = Files.lines(sourceFilePath)) {
             Lexer lexer = new Lexer(lines.toList());
             this.tokens = lexer.tokenize();
-            System.out.println(tokens);
+            Parser parser = new Parser(this.tokens);
+            Expression expression = parser.parse();
+            Interpreter interpreter = new Interpreter();
+            interpreter.print(expression);
         }
 
     }

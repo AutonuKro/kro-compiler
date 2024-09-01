@@ -16,7 +16,7 @@
                     <assembleDirectory>target/build</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>kro.autonu.compiler.Main</mainClass>
+                            <mainClass>com.krolang.compiler.Main</mainClass>
                             <id>kro</id>
                         </program>
                     </programs>

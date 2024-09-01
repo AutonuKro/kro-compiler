@@ -1,4 +1,4 @@
-package kro.autonu.compiler.type;
+package com.krolang.compiler.core.lexer;
 
 import java.util.Optional;
 
@@ -32,19 +32,29 @@ public enum TokenKind {
     GT(">"),
     GT_EQ(">="),
     ASSIGNMENT("="),
+    INHERITED("<-"),
+    COLON(":"),
 
     AND("&&"),
     OR("||"),
 
+    //Key words
     RETURN("Ret"),
     FUNC("Fun"),
     IF("If"),
     ELSE("Else"),
     ELIF("ElIf"),
+    FOR("For"),
+    CLASS("Class"),
+    SELF("Self"),
+    NIL("Nil"),
+    SUPER("Super"),
+    TRUE("True"),
+    FALSE("False"),
 
+    //Types
     INT("Int"),
-    STR("Str"),
-    FOR("For");
+    STR("Str");
 
     private final String symbol;
 

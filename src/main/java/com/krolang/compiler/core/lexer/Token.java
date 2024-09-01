@@ -1,4 +1,4 @@
-package kro.autonu.compiler.type;
+package com.krolang.compiler.core.lexer;
 
 import java.io.Serializable;
 import java.util.Optional;
