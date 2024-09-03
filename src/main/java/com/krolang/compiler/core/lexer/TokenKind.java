@@ -31,15 +31,15 @@ public enum TokenKind {
     LT_EQ("<="),
     GT(">"),
     GT_EQ(">="),
-    ASSIGNMENT("="),
-    INHERITED("<-"),
-    COLON(":"),
+    ASSIGN("="),
+    LEFT_ARROW("<-"),
+    COL(":"),
 
     AND("&&"),
     OR("||"),
 
-    //Key words
-    RETURN("Ret"),
+    //Keywords
+    RET("Ret"),
     FUNC("Fun"),
     IF("If"),
     ELSE("Else"),
@@ -53,7 +53,7 @@ public enum TokenKind {
     FALSE("False"),
 
     //Types
-    INT("Int"),
+    NUM("Num"),
     STR("Str");
 
     private final String symbol;

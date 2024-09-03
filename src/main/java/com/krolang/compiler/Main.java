@@ -24,7 +24,7 @@ public class Main {
             compiler.compile();
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            System.exit(1);
+            System.exit(64);
         }
     }
 }

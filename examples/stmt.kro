@@ -1,0 +1,17 @@
+Fun main(args: Num, argv: []Str): Num -> {
+    Let a: Num = 10;
+    Let b: Num = 9;
+    Let ans : Num = add(a,b);
+    print -> ans;
+    Ret 0;
+}
+
+Fun foo(input: []Num) -> {
+    Let ans: Num;
+    For _, x in input -> {
+        ans = ans + x;
+        print -> ans;
+    }
+}
+
+Fun add (a: Num, b: Num): Num -> a + b;

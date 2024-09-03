@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -18,8 +17,6 @@ import java.util.stream.Stream;
  * @author autonu.kro
  */
 public class Compiler implements Serializable {
-
-    private List<Token> tokens = new ArrayList<>();
 
     private final Path sourceFilePath;
 
@@ -31,11 +28,12 @@ public class Compiler implements Serializable {
 
         try (Stream<String> lines = Files.lines(sourceFilePath)) {
             Lexer lexer = new Lexer(lines.toList());
-            this.tokens = lexer.tokenize();
-            Parser parser = new Parser(this.tokens);
+            List<Token> tokens = lexer.tokenize();
+            Parser parser = new Parser(tokens);
             Expression expression = parser.parse();
-            Interpreter interpreter = new Interpreter();
-            interpreter.print(expression);
+            System.out.println(expression);
+            Interpreter interpreter = new Interpreter(expression);
+            System.out.println(interpreter.evaluate());
         }
 
     }

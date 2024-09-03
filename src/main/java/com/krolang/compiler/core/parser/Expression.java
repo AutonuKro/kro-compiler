@@ -7,43 +7,43 @@ import com.krolang.compiler.core.lexer.Token;
  */
 public interface Expression {
 
-    void accept(Visitor visitor);
+    Object accept(Visitor visitor);
 
     interface Visitor {
-        void visit(Literal literal);
+        Object visit(Literal literal);
 
-        void visit(Unary unary);
+        Object visit(Unary unary);
 
-        void visit(Binary binary);
+        Object visit(Binary binary);
 
-        void visit(Grouping grouping);
+        Object visit(Grouping grouping);
     }
 
     record Literal(Token literal) implements Expression {
         @Override
-        public void accept(Visitor visitor) {
-            visitor.visit(this);
+        public Object accept(Visitor visitor) {
+            return visitor.visit(this);
         }
     }
 
     record Unary(Token operator, Expression rightExpr) implements Expression {
         @Override
-        public void accept(Visitor visitor) {
-            visitor.visit(this);
+        public Object accept(Visitor visitor) {
+            return visitor.visit(this);
         }
     }
 
     record Binary(Expression leftExpr, Token operator, Expression rightExpr) implements Expression {
         @Override
-        public void accept(Visitor visitor) {
-            visitor.visit(this);
+        public Object accept(Visitor visitor) {
+            return visitor.visit(this);
         }
     }
 
     record Grouping(Expression expression) implements Expression {
         @Override
-        public void accept(Visitor visitor) {
-            visitor.visit(this);
+        public Object accept(Visitor visitor) {
+            return visitor.visit(this);
         }
     }
 
