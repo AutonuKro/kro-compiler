@@ -1,16 +1,19 @@
-Fun main(args: Num, argv: []Str): Num -> {
+Fun main(args:Num,argv:[]Str):Num -> {
+    //single comments
+    Let d: Str = 'Autonu';
     Let a: Num = 10;
     Let b: Num = 9;
     Let ans : Num = add(a,b);
-    print -> ans;
+    Print -> ans;
     Ret 0;
 }
 
 Fun foo(input: []Num) -> {
+    Let c: Num = 10 - 9;
     Let ans: Num;
     For _, x in input -> {
         ans = ans + x;
-        print -> ans;
+        Print -> ans;
     }
 }
 

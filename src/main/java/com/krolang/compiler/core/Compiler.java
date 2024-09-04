@@ -29,6 +29,7 @@ public class Compiler implements Serializable {
         try (Stream<String> lines = Files.lines(sourceFilePath)) {
             Lexer lexer = new Lexer(lines.toList());
             List<Token> tokens = lexer.tokenize();
+            System.out.println(tokens);
             Parser parser = new Parser(tokens);
             Expression expression = parser.parse();
             System.out.println(expression);

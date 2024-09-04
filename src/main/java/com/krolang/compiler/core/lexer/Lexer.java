@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public record Lexer(List<String> sourceCode) implements Serializable {
 
-    private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'[a-zA-Z]+'|^[a-zA-Z][a-zA-Z0-9]*$|[+\\-*]|[(){}\\[\\]]|==|!=|<|<=|>|>=|=|<-|:|;|&&|\\|\\|");
+    private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'[a-zA-Z]+'|[a-zA-Z][a-zA-Z0-9]*|<-|->|:|;|,|[+\\-*]|[(){}\\[\\]]|==|!=|<|<=|>|>=|=|&&|\\|\\|");
 
     public Lexer {
         sourceCode = List.copyOf(sourceCode);
@@ -21,6 +21,10 @@ public record Lexer(List<String> sourceCode) implements Serializable {
     public List<Token> tokenize() {
         final List<Token> tokens = new ArrayList<>();
         for (String line : sourceCode) {
+            if (line.replaceAll(" ", "").startsWith("//")) {
+                // Skip //single line comment
+                continue;
+            }
             Matcher matcher = PATTERN.matcher(line);
             while (matcher.find()) {
                 String tokenKind = matcher.group();

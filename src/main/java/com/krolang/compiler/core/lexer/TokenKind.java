@@ -8,6 +8,7 @@ import java.util.Optional;
 public enum TokenKind {
     EOF("<eof>"),
     SEMI(";"),
+    COMMA(","),
     IDENTIFIER("<id>"),
     NUM_LIT("<num_lit>"),
     STR_LIT("<str_lit>"),
@@ -19,6 +20,7 @@ public enum TokenKind {
     OPEN_CURLY("{"),
     CLOSE_CURLY("}"),
 
+    UNDER_SCORE("_"),
     PLUS("+"),
     MINUS("-"),
     MULTIPLICATION("*"),
@@ -33,12 +35,14 @@ public enum TokenKind {
     GT_EQ(">="),
     ASSIGN("="),
     LEFT_ARROW("<-"),
+    RIGHT_ARROW("->"),
     COL(":"),
 
     AND("&&"),
     OR("||"),
 
     //Keywords
+    PRINT("Print"),
     RET("Ret"),
     FUNC("Fun"),
     IF("If"),

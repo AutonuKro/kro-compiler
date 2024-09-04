@@ -14,21 +14,21 @@ public record Token(TokenKind tokenKind, Optional<String> content) implements Se
 
     private final static String IDENTIFIER_PATTERN = "^[a-zA-Z][a-zA-Z0-9]*$";
 
-    public static Token from(String tokenKind) {
-        Optional<TokenKind> optionalTokenKind = TokenKind.of(tokenKind);
+    public static Token from(String symbol) {
+        Optional<TokenKind> optionalTokenKind = TokenKind.of(symbol);
         if (optionalTokenKind.isPresent()) {
             return new Token(optionalTokenKind.get(), Optional.empty());
         }
-        if (tokenKind.matches(STRING_PATTERN)) {
-            return new Token(TokenKind.STR_LIT, Optional.of(tokenKind));
+        if (symbol.matches(STRING_PATTERN)) {
+            return new Token(TokenKind.STR_LIT, Optional.of(symbol));
         }
-        if (tokenKind.matches(NUMBER_PATTERN)) {
-            return new Token(TokenKind.NUM_LIT, Optional.of(tokenKind));
+        if (symbol.matches(NUMBER_PATTERN)) {
+            return new Token(TokenKind.NUM_LIT, Optional.of(symbol));
         }
-        if (tokenKind.matches(IDENTIFIER_PATTERN)) {
-            return new Token(TokenKind.IDENTIFIER, Optional.of(tokenKind));
+        if (symbol.matches(IDENTIFIER_PATTERN)) {
+            return new Token(TokenKind.IDENTIFIER, Optional.of(symbol));
         } else {
-            throw new IllegalArgumentException("Invalid token kind: " + tokenKind);
+            throw new IllegalArgumentException("Invalid token kind: " + symbol);
         }
     }
 
