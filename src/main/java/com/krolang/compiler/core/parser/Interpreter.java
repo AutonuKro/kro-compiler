@@ -8,24 +8,6 @@ import com.krolang.compiler.core.lexer.TokenKind;
 import java.util.List;
 
 /**
- * Context free grammar for the language, with precedence lowest to highest
- * <br/>
- * <code>
- * expression     ->   equality ;
- * <br/>
- * equality       ->   comparison ( ( "!=" | "==" ) comparison )* ;
- * <br/>
- * comparison     ->   term ( ( "<" | ">" | "<=" | ">=" ) term )* ;
- * <br/>
- * term           ->   factor ( ("+" | "-" ) factor )* ;
- * <br/>
- * factor         ->   unary ( ("/" | "*") unary )* ;
- * <br/>
- * unary          ->   ( "!" | "-" ) unary | primary ;
- * <br/>
- * primary        ->   "(" expression ")" | NUM_LIT | STR_LIT | "True" | "False" | "Nil" ;
- * </code>
- *
  * @author autonu.kro
  */
 public class Interpreter implements Expression.Visitor, Statement.Visitor {
@@ -38,7 +20,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     public void interpret() {
         for (Statement statement : statements) {
-            statement.accpet(this);
+            statement.accept(this);
         }
     }
 
@@ -96,6 +78,22 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
     }
 
     @Override
+    public Object visit(Expression.Variable variable) {
+        Token type = variable.type();
+        if (variable.expression() == null) {
+            return null;
+        }
+        Object object = evaluate(variable.expression());
+        return switch (object) {
+            case null -> null;
+            case String str when TokenKind.STR == type.tokenKind() -> str;
+            case Double num when TokenKind.NUM == type.tokenKind() -> num;
+            case Boolean bool when (TokenKind.TRUE == type.tokenKind() || TokenKind.FALSE == type.tokenKind()) -> bool;
+            default -> throw new IllegalArgumentException("Invalid type, mismatch occurred");
+        };
+    }
+
+    @Override
     public void visit(Statement.ExpressionStatement expressionStatement) {
         Expression expression = expressionStatement.expression();
         if (expression == null) {
@@ -129,6 +127,11 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
             case Boolean bool -> System.out.println(bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
             default -> System.out.println(object);
         }
+    }
+
+    @Override
+    public void visit(Statement.VariableDeclaration variableDeclaration) {
+        evaluate(variableDeclaration.expression());
     }
 
     private Object evaluate(Expression expression) {

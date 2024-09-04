@@ -17,6 +17,8 @@ public interface Expression {
         Object visit(Binary binary);
 
         Object visit(Grouping grouping);
+
+        Object visit(Variable variable);
     }
 
     record Literal(Token literal) implements Expression {
@@ -41,6 +43,14 @@ public interface Expression {
     }
 
     record Grouping(Expression expression) implements Expression {
+        @Override
+        public Object accept(Visitor visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record Variable(Token identifier, Token type, Expression expression) implements Expression {
+
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);

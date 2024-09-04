@@ -10,32 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Context free grammar for the language, with precedence lowest to highest
- * <br/>
- * <code>
- * program        ->   statement* EOF
- * <br/>
- * statement      ->   exprStmt | printStmt
- * <br/>
- * exprStmt       ->   expression ";"
- * <br/>
- * printStmt      ->   "Print" "->" expression ";"
- * <br/>
- * expression     ->   equality
- * <br/>
- * equality       ->   comparison ( ( "!=" | "==" ) comparison )*
- * <br/>
- * comparison     ->   term ( ( "<" | ">" | "<=" | ">=" ) term )*
- * <br/>
- * term           ->   factor ( ("+" | "-" ) factor )*
- * <br/>
- * factor         ->   unary ( ("/" | "*") unary )*
- * <br/>
- * unary          ->   ( "!" | "-" ) unary | primary
- * <br/>
- * primary        ->   "(" expression ")" | NUM_LIT | STR_LIT | "True" | "False" | "Nil"
- * </code>
- *
  * @author autonu.kro
  */
 public class Parser implements Serializable {
@@ -53,9 +27,36 @@ public class Parser implements Serializable {
     private List<Statement> program() {
         final List<Statement> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
+            statements.add(declaration());
         }
         return statements;
+    }
+
+    private Statement declaration() {
+        if (!match(TokenKind.LET)) {
+            return statement();
+        }
+        return variableDeclaration();
+    }
+
+    private Statement variableDeclaration() {
+        if (!match(TokenKind.IDENTIFIER)) {
+            throw new IllegalArgumentException("Invalid token expected: <id>");
+        }
+        if (!match(TokenKind.COL)) {
+            throw new IllegalArgumentException("Invalid token expected: :");
+        }
+        if (!match(TokenKind.NUM, TokenKind.STR)) {
+            throw new IllegalArgumentException("Invalid token expected: Num or Str");
+        }
+        if (!match(TokenKind.ASSIGN)) {
+            throw new IllegalArgumentException("Invalid token expected: =");
+        }
+        Expression expression = expression();
+        if (!match(TokenKind.SEMI)) {
+            throw new IllegalArgumentException("Invalid token expected: ;");
+        }
+        return new Statement.VariableDeclaration(expression);
     }
 
     private Statement statement() {
@@ -72,7 +73,6 @@ public class Parser implements Serializable {
     private Statement exprStmt() {
         Expression expression = expression();
         if (!match(TokenKind.SEMI)) {
-            System.out.println("In exprStmt()");
             throw new IllegalArgumentException("Invalid token expected: ;");
         }
         return new Statement.ExpressionStatement(expression);
@@ -81,7 +81,6 @@ public class Parser implements Serializable {
     private Statement printStmt() {
         Expression expression = expression();
         if (!match(TokenKind.SEMI)) {
-            System.out.println("In printStmt()");
             throw new IllegalArgumentException("Invalid token expected: ;");
         }
         return new Statement.PrintStatement(expression);
@@ -144,6 +143,23 @@ public class Parser implements Serializable {
     private Expression primary() {
         if (match(TokenKind.NUM_LIT, TokenKind.STR_LIT, TokenKind.TRUE, TokenKind.FALSE, TokenKind.NIL)) {
             return new Expression.Literal(previous());
+        } else if (match(TokenKind.LET)) {
+            if (!match(TokenKind.IDENTIFIER)) {
+                throw new IllegalArgumentException("Invalid token expected: IDENTIFIER");
+            }
+            Token identifier = previous();
+            if (!match(TokenKind.COL)) {
+                throw new IllegalArgumentException("Invalid token expected: :");
+            }
+            if (!match(TokenKind.NUM, TokenKind.STR)) {
+                throw new IllegalArgumentException("Invalid token expected: Str or Num");
+            }
+            Token type = previous();
+            if (!match(TokenKind.ASSIGN)) {
+                throw new IllegalArgumentException("Invalid token expected: =");
+            }
+            return new Expression.Variable(identifier, type, expression());
+
         } else if (match(TokenKind.OPEN_PARENTHESIS)) {
             Expression expression = expression();
             if (!match(TokenKind.CLOSE_PARENTHESIS)) {

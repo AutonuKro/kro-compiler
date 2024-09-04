@@ -1,0 +1,2 @@
+Let b : Str = 'Kro';
+Print -> b;

@@ -11,17 +11,19 @@ Run your program
 ```shell
 ./target/build/bin/kro hello.kro
 ```
-
-<h2>
-Grammer
-</h2>
-
-\begin{align*}
-    \text{expression} &\rightarrow \text{equality} \\
-    \text{equality} &\rightarrow \text{comparison} \ \left(\ \text{"!="} \mid \text{"=="}\ \right) \ \text{comparison} \ \ast \\
-    \text{comparison} &\rightarrow \text{term} \ \left(\ \text{"<"} \mid \text{">"} \mid \text{"<="} \mid \text{">="}\ \right) \ \text{term} \ \ast \\
-    \text{term} &\rightarrow \text{factor} \ \left(\ \text{"+"} \mid \text{"-"}\ \right) \ \text{factor} \ \ast \\
-    \text{factor} &\rightarrow \text{unary} \ \left(\ \text{"/"} \mid \text{"*"}\ \right) \ \text{unary} \ \ast \\
-    \text{unary} &\rightarrow \left(\ \text{"!"} \mid \text{"-"}\ \right) \ \text{unary} \mid \text{primary} \\
-    \text{primary} &\rightarrow \left(\ \text{"("} \ \text{expression} \ \text{")"} \right) \mid \text{NUM\_LIT} \mid \text{STR\_LIT} \mid \text{"True"} \mid \text{"False"} \mid \text{"Nil"}
-\end{align*}
+### Context free grammar for the language, with precedence lowest to highest
+```markdown
+program                     ->      declaration* EOF
+declaration                 ->      variableDeclaration | statement
+variableDeclaration         ->      "Let" IDENTIFIER ":" ( "Num" | "Str" ) ( "=" expression ) ? ";"
+statement                   ->      exprStmt | printStmt
+exprStmt                    ->      expression ";"
+printStmt                   ->      "Print" "->" expression ";"
+expression                  ->      equality
+equality                    ->      comparison ( ( "!=" | "==" ) comparison )*
+comparison                  ->      term ( ( "<" | ">" | "<=" | ">=" ) term )*
+term                        ->      factor ( ("+" | "-" ) factor )*
+factor                      ->      unary ( ("/" | "*") unary )*
+unary                       ->      ( "!" | "-" ) unary | primary
+primary                     ->      "(" expression ")" | NUM_LIT | STR_LIT | "True" | "False" | "Nil" | IDENTIFIER
+```

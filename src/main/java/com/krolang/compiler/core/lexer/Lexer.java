@@ -20,9 +20,26 @@ public record Lexer(List<String> sourceCode) implements Serializable {
 
     public List<Token> tokenize() {
         final List<Token> tokens = new ArrayList<>();
+        boolean flag = false;
         for (String line : sourceCode) {
             if (line.replaceAll(" ", "").startsWith("//")) {
                 // Skip //single line comment
+                continue;
+            }
+            if (line.replaceAll(" ", "").startsWith("/*") && line.endsWith("*/")) {
+                // Skip /* multi line comment */
+                continue;
+            }
+            if (!flag && line.replaceAll(" ", "").startsWith("/*")) {
+                // Skip /* multi line comment
+                //      */
+                flag = true;
+                continue;
+            } else if (flag && line.endsWith("*/")) {
+                flag = false;
+                continue;
+            }
+            if (flag) {
                 continue;
             }
             Matcher matcher = PATTERN.matcher(line);

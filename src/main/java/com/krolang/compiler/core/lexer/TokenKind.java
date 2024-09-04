@@ -42,6 +42,7 @@ public enum TokenKind {
     OR("||"),
 
     //Keywords
+    LET("Let"),
     PRINT("Print"),
     RET("Ret"),
     FUNC("Fun"),

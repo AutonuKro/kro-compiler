@@ -1,5 +1,7 @@
 //Print -> (2*3);
-//Print -> 'Autonu' + '\' Kro' + '\'' + 'Hello World' + '"Welcome"';
+/*
+    Print -> 'Autonu' + '\' Kro' + '\'' + 'Hello World' + '"Welcome"';
+*/
 Print -> True;
 Print -> 1 == 2;
 Print -> 1 != 2;

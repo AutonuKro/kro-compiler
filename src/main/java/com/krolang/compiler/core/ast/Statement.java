@@ -5,24 +5,34 @@ package com.krolang.compiler.core.ast;
  */
 public interface Statement {
 
-    void accpet(Visitor visitor);
+    void accept(Visitor visitor);
 
     interface Visitor {
         void visit(ExpressionStatement expressionStatement);
 
         void visit(PrintStatement printStatement);
+
+        void visit(VariableDeclaration variableDeclaration);
     }
 
     record ExpressionStatement(Expression expression) implements Statement {
         @Override
-        public void accpet(Visitor visitor) {
+        public void accept(Visitor visitor) {
             visitor.visit(this);
         }
     }
 
     record PrintStatement(Expression expression) implements Statement {
         @Override
-        public void accpet(Visitor visitor) {
+        public void accept(Visitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    record VariableDeclaration(Expression expression) implements Statement {
+
+        @Override
+        public void accept(Visitor visitor) {
             visitor.visit(this);
         }
     }
