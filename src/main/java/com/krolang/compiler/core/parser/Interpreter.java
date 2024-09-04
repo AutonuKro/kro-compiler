@@ -1,7 +1,11 @@
 package com.krolang.compiler.core.parser;
 
+import com.krolang.compiler.core.ast.Expression;
+import com.krolang.compiler.core.ast.Statement;
 import com.krolang.compiler.core.lexer.Token;
 import com.krolang.compiler.core.lexer.TokenKind;
+
+import java.util.List;
 
 /**
  * Context free grammar for the language, with precedence lowest to highest
@@ -24,20 +28,18 @@ import com.krolang.compiler.core.lexer.TokenKind;
  *
  * @author autonu.kro
  */
-public class Interpreter implements Expression.Visitor {
+public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
-    private final Expression expression;
+    private final List<Statement> statements;
 
-    public Interpreter(Expression expression) {
-        this.expression = expression;
+    public Interpreter(List<Statement> statements) {
+        this.statements = List.copyOf(statements);
     }
 
-    public String evaluate() {
-        Object result = expression.accept(this);
-        if (result == null) {
-            return "Nil";
+    public void interpret() {
+        for (Statement statement : statements) {
+            statement.accpet(this);
         }
-        return result.toString();
     }
 
     @Override
@@ -93,25 +95,61 @@ public class Interpreter implements Expression.Visitor {
         return evaluate(grouping.expression());
     }
 
+    @Override
+    public void visit(Statement.ExpressionStatement expressionStatement) {
+        Expression expression = expressionStatement.expression();
+        if (expression == null) {
+            throw new IllegalArgumentException("No expression found");
+        }
+        evaluate(expression);
+    }
+
+    @Override
+    public void visit(Statement.PrintStatement printStatement) {
+        Expression expression = printStatement.expression();
+        if (expression == null) {
+            throw new IllegalArgumentException("No valid expression to print");
+        }
+        Object object = evaluate(expression);
+        switch (object) {
+            case null -> System.out.println(TokenKind.NIL.symbol());
+            case String str -> System.out.println(str);
+            case Double d -> {
+                double num = d;
+                if (num == (int) num) {
+                    System.out.println(d.intValue());
+                } else if (num == (long) num) {
+                    System.out.println(d.longValue());
+                } else if (num == (float) num) {
+                    System.out.println(d.floatValue());
+                } else {
+                    System.out.println(d.doubleValue());
+                }
+            }
+            case Boolean bool -> System.out.println(bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
+            default -> System.out.println(object);
+        }
+    }
+
     private Object evaluate(Expression expression) {
         return expression.accept(this);
     }
 
-    private Object tokenToNumber(Token token) {
+    private Double tokenToNumber(Token token) {
         if (token.content().isEmpty()) {
             return null;
         }
         return Double.parseDouble(token.content().get());
     }
 
-    private Object tokenToString(Token token) {
+    private String tokenToString(Token token) {
         if (token.content().isEmpty()) {
             return null;
         }
-        return token.content().get();
+        return token.content().get().replaceAll("(^'|'$|\\\\)", "");
     }
 
-    private Object tokenToBoolean(Token token) {
+    private Boolean tokenToBoolean(Token token) {
         return switch (token.tokenKind()) {
             case TRUE -> Boolean.TRUE;
             case FALSE -> Boolean.FALSE;

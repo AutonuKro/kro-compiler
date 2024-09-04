@@ -1,8 +1,8 @@
 package com.krolang.compiler.core;
 
+import com.krolang.compiler.core.ast.Statement;
 import com.krolang.compiler.core.lexer.Lexer;
 import com.krolang.compiler.core.lexer.Token;
-import com.krolang.compiler.core.parser.Expression;
 import com.krolang.compiler.core.parser.Interpreter;
 import com.krolang.compiler.core.parser.Parser;
 
@@ -31,10 +31,10 @@ public class Compiler implements Serializable {
             List<Token> tokens = lexer.tokenize();
             System.out.println(tokens);
             Parser parser = new Parser(tokens);
-            Expression expression = parser.parse();
-            System.out.println(expression);
-            Interpreter interpreter = new Interpreter(expression);
-            System.out.println(interpreter.evaluate());
+            List<Statement> statements = parser.parse();
+            System.out.println(statements);
+            Interpreter interpreter = new Interpreter(statements);
+            interpreter.interpret();
         }
 
     }

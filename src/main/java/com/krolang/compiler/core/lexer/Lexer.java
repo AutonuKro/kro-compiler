@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public record Lexer(List<String> sourceCode) implements Serializable {
 
-    private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'[a-zA-Z]+'|[a-zA-Z][a-zA-Z0-9]*|<-|->|:|;|,|[+\\-*]|[(){}\\[\\]]|==|!=|<|<=|>|>=|=|&&|\\|\\|");
+    private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'([^'\\\\]|\\\\'|\\\\\\\\)*'|[a-zA-Z][a-zA-Z0-9]*|<-|->|:|;|,|[+\\-*]|[(){}\\[\\]]|==|!=|<|<=|>|>=|=|&&|\\|\\|");
 
     public Lexer {
         sourceCode = List.copyOf(sourceCode);

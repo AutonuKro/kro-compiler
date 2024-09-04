@@ -1,4 +1,4 @@
-package com.krolang.compiler.core.parser;
+package com.krolang.compiler.core.ast;
 
 import com.krolang.compiler.core.lexer.Token;
 

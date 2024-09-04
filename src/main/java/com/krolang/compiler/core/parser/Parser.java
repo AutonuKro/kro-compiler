@@ -1,28 +1,39 @@
 package com.krolang.compiler.core.parser;
 
+import com.krolang.compiler.core.ast.Expression;
+import com.krolang.compiler.core.ast.Statement;
 import com.krolang.compiler.core.lexer.Token;
 import com.krolang.compiler.core.lexer.TokenKind;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Context free grammar for the language, with precedence lowest to highest
  * <br/>
  * <code>
- * expression     ->   equality ;
+ * program        ->   statement* EOF
  * <br/>
- * equality       ->   comparison ( ( "!=" | "==" ) comparison )* ;
+ * statement      ->   exprStmt | printStmt
  * <br/>
- * comparison     ->   term ( ( "<" | ">" | "<=" | ">=" ) term )* ;
+ * exprStmt       ->   expression ";"
  * <br/>
- * term           ->   factor ( ("+" | "-" ) factor )* ;
+ * printStmt      ->   "Print" "->" expression ";"
  * <br/>
- * factor         ->   unary ( ("/" | "*") unary )* ;
+ * expression     ->   equality
  * <br/>
- * unary          ->   ( "!" | "-" ) unary | primary ;
+ * equality       ->   comparison ( ( "!=" | "==" ) comparison )*
  * <br/>
- * primary        ->   "(" expression ")" | NUM_LIT | STR_LIT | "True" | "False" | "Nil" ;
+ * comparison     ->   term ( ( "<" | ">" | "<=" | ">=" ) term )*
+ * <br/>
+ * term           ->   factor ( ("+" | "-" ) factor )*
+ * <br/>
+ * factor         ->   unary ( ("/" | "*") unary )*
+ * <br/>
+ * unary          ->   ( "!" | "-" ) unary | primary
+ * <br/>
+ * primary        ->   "(" expression ")" | NUM_LIT | STR_LIT | "True" | "False" | "Nil"
  * </code>
  *
  * @author autonu.kro
@@ -35,8 +46,45 @@ public class Parser implements Serializable {
         this.tokens = tokens;
     }
 
-    public Expression parse() {
-        return expression();
+    public List<Statement> parse() {
+        return program();
+    }
+
+    private List<Statement> program() {
+        final List<Statement> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
+        }
+        return statements;
+    }
+
+    private Statement statement() {
+        if (match(TokenKind.PRINT)) {
+            if (!match(TokenKind.RIGHT_ARROW)) {
+                throw new IllegalArgumentException("Invalid token expected: ->");
+            }
+            return printStmt();
+        } else {
+            return exprStmt();
+        }
+    }
+
+    private Statement exprStmt() {
+        Expression expression = expression();
+        if (!match(TokenKind.SEMI)) {
+            System.out.println("In exprStmt()");
+            throw new IllegalArgumentException("Invalid token expected: ;");
+        }
+        return new Statement.ExpressionStatement(expression);
+    }
+
+    private Statement printStmt() {
+        Expression expression = expression();
+        if (!match(TokenKind.SEMI)) {
+            System.out.println("In printStmt()");
+            throw new IllegalArgumentException("Invalid token expected: ;");
+        }
+        return new Statement.PrintStatement(expression);
     }
 
     private Expression expression() {
@@ -98,7 +146,7 @@ public class Parser implements Serializable {
             return new Expression.Literal(previous());
         } else if (match(TokenKind.OPEN_PARENTHESIS)) {
             Expression expression = expression();
-            if (!check(TokenKind.CLOSE_PARENTHESIS)) {
+            if (!match(TokenKind.CLOSE_PARENTHESIS)) {
                 throw new RuntimeException("Invalid token expected : )");
             }
             return new Expression.Grouping(expression);

@@ -10,7 +10,7 @@ public record Token(TokenKind tokenKind, Optional<String> content) implements Se
 
     private final static String NUMBER_PATTERN = "\\d+(\\.\\d+)?";
 
-    private final static String STRING_PATTERN = "'[a-zA-Z]+'";
+    private final static String STRING_PATTERN = "'([^'\\\\]|\\\\'|\\\\\\\\)*'";
 
     private final static String IDENTIFIER_PATTERN = "^[a-zA-Z][a-zA-Z0-9]*$";
 
