@@ -59,7 +59,8 @@ public enum TokenKind {
 
     //Types
     NUM("Num"),
-    STR("Str");
+    STR("Str"),
+    BOOL("Bool");
 
     private final String symbol;
 

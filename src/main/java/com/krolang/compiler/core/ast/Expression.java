@@ -19,9 +19,12 @@ public interface Expression {
         Object visit(Grouping grouping);
 
         Object visit(Variable variable);
+
+        Object visit(Assignment assignment);
     }
 
     record Literal(Token literal) implements Expression {
+
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);
@@ -29,6 +32,7 @@ public interface Expression {
     }
 
     record Unary(Token operator, Expression rightExpr) implements Expression {
+
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);
@@ -36,6 +40,7 @@ public interface Expression {
     }
 
     record Binary(Expression leftExpr, Token operator, Expression rightExpr) implements Expression {
+
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);
@@ -43,6 +48,7 @@ public interface Expression {
     }
 
     record Grouping(Expression expression) implements Expression {
+
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);
@@ -54,6 +60,14 @@ public interface Expression {
         @Override
         public Object accept(Visitor visitor) {
             return visitor.visit(this);
+        }
+    }
+
+    record Assignment(Token identifier, Token equal, Expression expression) implements Expression {
+
+        @Override
+        public Object accept(Visitor visitor) {
+            return null;
         }
     }
 

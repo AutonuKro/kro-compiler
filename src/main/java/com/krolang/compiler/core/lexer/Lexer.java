@@ -15,7 +15,21 @@ public record Lexer(List<String> sourceCode) implements Serializable {
     private static final Pattern PATTERN = Pattern.compile("\\d+(\\.\\d+)?|'([^'\\\\]|\\\\'|\\\\\\\\)*'|[a-zA-Z][a-zA-Z0-9]*|<-|->|:|;|,|[+\\-*]|[(){}\\[\\]]|==|!=|<|<=|>|>=|=|&&|\\|\\|");
 
     public Lexer {
+        if (sourceCode == null) {
+            sourceCode = new ArrayList<>();
+        }
         sourceCode = List.copyOf(sourceCode);
+    }
+
+    public List<Token> tokenize(String input) {
+        final List<Token> tokens = new ArrayList<>();
+        Matcher matcher = PATTERN.matcher(input);
+        while (matcher.find()) {
+            String tokenKind = matcher.group();
+            tokens.add(Token.from(tokenKind));
+        }
+        tokens.add(new Token(TokenKind.EOF, Optional.empty()));
+        return tokens;
     }
 
     public List<Token> tokenize() {

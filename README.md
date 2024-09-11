@@ -19,7 +19,8 @@ variableDeclaration         ->      "Let" IDENTIFIER ":" ( "Num" | "Str" ) ( "="
 statement                   ->      exprStmt | printStmt
 exprStmt                    ->      expression ";"
 printStmt                   ->      "Print" "->" expression ";"
-expression                  ->      equality
+expression                  ->      assignment | equality
+assignment                  ->      IDENTIFIER "=" assignment
 equality                    ->      comparison ( ( "!=" | "==" ) comparison )*
 comparison                  ->      term ( ( "<" | ">" | "<=" | ">=" ) term )*
 term                        ->      factor ( ("+" | "-" ) factor )*

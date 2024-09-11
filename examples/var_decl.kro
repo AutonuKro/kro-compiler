@@ -1,2 +1,4 @@
-Let b : Str = 'Kro';
-Print -> b;
+{
+    Let b : Num = 10 + 43;
+    Print -> (b * 10) + 10;
+}

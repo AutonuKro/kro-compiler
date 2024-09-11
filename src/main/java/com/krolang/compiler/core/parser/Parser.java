@@ -6,13 +6,14 @@ import com.krolang.compiler.core.lexer.Token;
 import com.krolang.compiler.core.lexer.TokenKind;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author autonu.kro
  */
 public class Parser implements Serializable {
+
+    private final Map<String, Expression> scopedVariables = new LinkedHashMap<>();
     private final List<Token> tokens;
     private int current = 0;
 
@@ -22,6 +23,10 @@ public class Parser implements Serializable {
 
     public List<Statement> parse() {
         return program();
+    }
+
+    public Map<String, Expression> getScopedVariables() {
+        return scopedVariables;
     }
 
     private List<Statement> program() {
@@ -43,20 +48,33 @@ public class Parser implements Serializable {
         if (!match(TokenKind.IDENTIFIER)) {
             throw new IllegalArgumentException("Invalid token expected: <id>");
         }
+        Token identifier = previous();
         if (!match(TokenKind.COL)) {
             throw new IllegalArgumentException("Invalid token expected: :");
         }
-        if (!match(TokenKind.NUM, TokenKind.STR)) {
-            throw new IllegalArgumentException("Invalid token expected: Num or Str");
+        if (!match(TokenKind.NUM, TokenKind.STR, TokenKind.BOOL)) {
+            throw new IllegalArgumentException("Invalid token expected: Num or Str or Bool");
         }
-        if (!match(TokenKind.ASSIGN)) {
-            throw new IllegalArgumentException("Invalid token expected: =");
+        if (match(TokenKind.ASSIGN)) {
+            Expression expression = expression();
+            if (!match(TokenKind.SEMI)) {
+                throw new IllegalArgumentException("Invalid token expected: ;");
+            }
+            if (identifier.content().isEmpty()) {
+                throw new IllegalArgumentException("Expecting <id> token value");
+            }
+            scopedVariables.put(identifier.content().get(), expression);
+            return new Statement.VariableDeclaration(identifier, expression);
         }
-        Expression expression = expression();
         if (!match(TokenKind.SEMI)) {
             throw new IllegalArgumentException("Invalid token expected: ;");
         }
-        return new Statement.VariableDeclaration(expression);
+        if (identifier.content().isEmpty()) {
+            throw new IllegalArgumentException("Expecting <id> token value");
+        }
+        Expression nilExpr = new Expression.Literal(new Token(TokenKind.NIL, Optional.empty()));
+        scopedVariables.put(identifier.content().get(), nilExpr);
+        return new Statement.VariableDeclaration(identifier, nilExpr);
     }
 
     private Statement statement() {
@@ -87,7 +105,25 @@ public class Parser implements Serializable {
     }
 
     private Expression expression() {
+        if (!match(TokenKind.IDENTIFIER)) {
+
+        }
         return equality();
+    }
+
+    private Expression assignment() {
+        Expression expression = equality();
+        System.out.println(expression);
+        Token identifier = previous();
+        if (TokenKind.IDENTIFIER != identifier.tokenKind()) {
+            return expression;
+        }
+        if (match(TokenKind.ASSIGN)) {
+            Token equal = previous();
+            Expression assignment = assignment();
+            return new Expression.Assignment(identifier, equal, assignment);
+        }
+        throw new IllegalArgumentException("Invalid token expected= ;");
     }
 
     private Expression equality() {
@@ -131,7 +167,6 @@ public class Parser implements Serializable {
     }
 
     private Expression unary() {
-
         if (match(TokenKind.NOT, TokenKind.MINUS)) {
             Token operator = previous();
             Expression unary = unary();
@@ -141,25 +176,8 @@ public class Parser implements Serializable {
     }
 
     private Expression primary() {
-        if (match(TokenKind.NUM_LIT, TokenKind.STR_LIT, TokenKind.TRUE, TokenKind.FALSE, TokenKind.NIL)) {
+        if (match(TokenKind.NUM_LIT, TokenKind.STR_LIT, TokenKind.TRUE, TokenKind.FALSE, TokenKind.NIL, TokenKind.IDENTIFIER)) {
             return new Expression.Literal(previous());
-        } else if (match(TokenKind.LET)) {
-            if (!match(TokenKind.IDENTIFIER)) {
-                throw new IllegalArgumentException("Invalid token expected: IDENTIFIER");
-            }
-            Token identifier = previous();
-            if (!match(TokenKind.COL)) {
-                throw new IllegalArgumentException("Invalid token expected: :");
-            }
-            if (!match(TokenKind.NUM, TokenKind.STR)) {
-                throw new IllegalArgumentException("Invalid token expected: Str or Num");
-            }
-            Token type = previous();
-            if (!match(TokenKind.ASSIGN)) {
-                throw new IllegalArgumentException("Invalid token expected: =");
-            }
-            return new Expression.Variable(identifier, type, expression());
-
         } else if (match(TokenKind.OPEN_PARENTHESIS)) {
             Expression expression = expression();
             if (!match(TokenKind.CLOSE_PARENTHESIS)) {

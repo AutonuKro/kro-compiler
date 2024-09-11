@@ -5,23 +5,33 @@ import com.krolang.compiler.core.ast.Statement;
 import com.krolang.compiler.core.lexer.Token;
 import com.krolang.compiler.core.lexer.TokenKind;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author autonu.kro
  */
 public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
+    private final Map<String, Expression> scopedVariables;
     private final List<Statement> statements;
+    private final Map<String, Object> valueOfVariable;
 
-    public Interpreter(List<Statement> statements) {
+    public Interpreter(Map<String, Expression> scopedVariables, List<Statement> statements) {
+        this.scopedVariables = Map.copyOf(scopedVariables);
         this.statements = List.copyOf(statements);
+        this.valueOfVariable = new LinkedHashMap<>();
     }
 
     public void interpret() {
         for (Statement statement : statements) {
             statement.accept(this);
         }
+    }
+
+    public Map<String, Object> getValueOfVariable() {
+        return valueOfVariable;
     }
 
     @Override
@@ -31,6 +41,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
             case NUM_LIT -> tokenToNumber(token);
             case STR_LIT -> tokenToString(token);
             case TRUE, FALSE -> tokenToBoolean(token);
+            case IDENTIFIER -> tokenToValue(token);
             case NIL -> tokenToNil(token);
             default -> throw new IllegalArgumentException("Invalid literal: " + token);
         };
@@ -94,6 +105,11 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
     }
 
     @Override
+    public Object visit(Expression.Assignment assignment) {
+        return null;
+    }
+
+    @Override
     public void visit(Statement.ExpressionStatement expressionStatement) {
         Expression expression = expressionStatement.expression();
         if (expression == null) {
@@ -131,7 +147,30 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     @Override
     public void visit(Statement.VariableDeclaration variableDeclaration) {
-        evaluate(variableDeclaration.expression());
+        Token token = variableDeclaration.identifier();
+        if (token.content().isEmpty()) {
+            throw new IllegalArgumentException("variable identifier expected");
+        }
+        Object value = evaluate(variableDeclaration.expression());
+        switch (value) {
+            case null -> this.valueOfVariable.put(token.content().get(), TokenKind.NIL.symbol());
+            case String str -> this.valueOfVariable.put(token.content().get(), "'" + str + "'");
+            case Double d -> {
+                double num = d;
+                if (num == (int) num) {
+                    this.valueOfVariable.put(token.content().get(), d.intValue());
+                } else if (num == (long) num) {
+                    this.valueOfVariable.put(token.content().get(), d.longValue());
+                } else if (num == (float) num) {
+                    this.valueOfVariable.put(token.content().get(), d.floatValue());
+                } else {
+                    this.valueOfVariable.put(token.content().get(), d);
+                }
+            }
+            case Boolean bool ->
+                    this.valueOfVariable.put(token.content().get(), bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
+            default -> this.valueOfVariable.put(token.content().get(), value);
+        }
     }
 
     private Object evaluate(Expression expression) {
@@ -158,6 +197,14 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
             case FALSE -> Boolean.FALSE;
             default -> throw new IllegalArgumentException("Invalid token: " + token);
         };
+    }
+
+    private Object tokenToValue(Token token) {
+        if (token.content().isEmpty()) {
+            throw new IllegalArgumentException("Expected <id> content value");
+        }
+        Expression expression = scopedVariables.get(token.content().get());
+        return evaluate(expression);
     }
 
     private Object tokenToNil(Token token) {

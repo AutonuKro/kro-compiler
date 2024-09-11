@@ -1,5 +1,7 @@
 package com.krolang.compiler.core.ast;
 
+import com.krolang.compiler.core.lexer.Token;
+
 /**
  * @author autonu.kro
  */
@@ -29,7 +31,7 @@ public interface Statement {
         }
     }
 
-    record VariableDeclaration(Expression expression) implements Statement {
+    record VariableDeclaration(Token identifier, Expression expression) implements Statement {
 
         @Override
         public void accept(Visitor visitor) {

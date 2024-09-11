@@ -9,9 +9,7 @@ import java.util.Optional;
 public record Token(TokenKind tokenKind, Optional<String> content) implements Serializable {
 
     private final static String NUMBER_PATTERN = "\\d+(\\.\\d+)?";
-
     private final static String STRING_PATTERN = "'([^'\\\\]|\\\\'|\\\\\\\\)*'";
-
     private final static String IDENTIFIER_PATTERN = "^[a-zA-Z][a-zA-Z0-9]*$";
 
     public static Token from(String symbol) {
