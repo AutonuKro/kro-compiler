@@ -1,6 +1,6 @@
 package com.krolang.compiler.core.ast;
 
-import com.krolang.compiler.core.lexer.Token;
+import com.krolang.compiler.core.lox.Token;
 
 /**
  * @author autonu.kro
@@ -63,11 +63,11 @@ public interface Expression {
         }
     }
 
-    record Assignment(Token identifier, Token equal, Expression expression) implements Expression {
+    record Assignment(Token identifier, Expression expression) implements Expression {
 
         @Override
         public Object accept(Visitor visitor) {
-            return null;
+            return visitor.visit(this);
         }
     }
 

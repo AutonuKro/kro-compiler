@@ -1,4 +1,4 @@
-package com.krolang.compiler.core.lexer;
+package com.krolang.compiler.core.lox;
 
 import java.io.Serializable;
 import java.util.ArrayList;

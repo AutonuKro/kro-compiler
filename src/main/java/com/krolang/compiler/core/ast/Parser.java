@@ -1,19 +1,18 @@
-package com.krolang.compiler.core.parser;
+package com.krolang.compiler.core.ast;
 
-import com.krolang.compiler.core.ast.Expression;
-import com.krolang.compiler.core.ast.Statement;
-import com.krolang.compiler.core.lexer.Token;
-import com.krolang.compiler.core.lexer.TokenKind;
+import com.krolang.compiler.core.lox.Token;
+import com.krolang.compiler.core.lox.TokenKind;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author autonu.kro
  */
 public class Parser implements Serializable {
 
-    private final Map<String, Expression> scopedVariables = new LinkedHashMap<>();
     private final List<Token> tokens;
     private int current = 0;
 
@@ -23,10 +22,6 @@ public class Parser implements Serializable {
 
     public List<Statement> parse() {
         return program();
-    }
-
-    public Map<String, Expression> getScopedVariables() {
-        return scopedVariables;
     }
 
     private List<Statement> program() {
@@ -63,7 +58,7 @@ public class Parser implements Serializable {
             if (identifier.content().isEmpty()) {
                 throw new IllegalArgumentException("Expecting <id> token value");
             }
-            scopedVariables.put(identifier.content().get(), expression);
+            Context.assignmentExpression(identifier.content().get(), expression);
             return new Statement.VariableDeclaration(identifier, expression);
         }
         if (!match(TokenKind.SEMI)) {
@@ -73,7 +68,7 @@ public class Parser implements Serializable {
             throw new IllegalArgumentException("Expecting <id> token value");
         }
         Expression nilExpr = new Expression.Literal(new Token(TokenKind.NIL, Optional.empty()));
-        scopedVariables.put(identifier.content().get(), nilExpr);
+        Context.assignmentExpression(identifier.content().get(), nilExpr);
         return new Statement.VariableDeclaration(identifier, nilExpr);
     }
 
@@ -105,25 +100,23 @@ public class Parser implements Serializable {
     }
 
     private Expression expression() {
-        if (!match(TokenKind.IDENTIFIER)) {
-
-        }
-        return equality();
+        return assignment();
     }
 
     private Expression assignment() {
+        //TODO: Here lies problem
+        // a = a+1 recursion
         Expression expression = equality();
-        System.out.println(expression);
         Token identifier = previous();
-        if (TokenKind.IDENTIFIER != identifier.tokenKind()) {
-            return expression;
+        if (identifier.content().isEmpty()) {
+            throw new IllegalArgumentException("Expected an identifier");
         }
         if (match(TokenKind.ASSIGN)) {
-            Token equal = previous();
             Expression assignment = assignment();
-            return new Expression.Assignment(identifier, equal, assignment);
+            Context.assignmentExpression(identifier.content().get(), assignment);
+            return new Expression.Assignment(identifier, assignment);
         }
-        throw new IllegalArgumentException("Invalid token expected= ;");
+        return expression;
     }
 
     private Expression equality() {

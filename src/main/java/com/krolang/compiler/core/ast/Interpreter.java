@@ -1,37 +1,25 @@
-package com.krolang.compiler.core.parser;
+package com.krolang.compiler.core.ast;
 
-import com.krolang.compiler.core.ast.Expression;
-import com.krolang.compiler.core.ast.Statement;
-import com.krolang.compiler.core.lexer.Token;
-import com.krolang.compiler.core.lexer.TokenKind;
+import com.krolang.compiler.core.lox.Token;
+import com.krolang.compiler.core.lox.TokenKind;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author autonu.kro
  */
 public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
-    private final Map<String, Expression> scopedVariables;
     private final List<Statement> statements;
-    private final Map<String, Object> valueOfVariable;
 
-    public Interpreter(Map<String, Expression> scopedVariables, List<Statement> statements) {
-        this.scopedVariables = Map.copyOf(scopedVariables);
+    public Interpreter(List<Statement> statements) {
         this.statements = List.copyOf(statements);
-        this.valueOfVariable = new LinkedHashMap<>();
     }
 
     public void interpret() {
         for (Statement statement : statements) {
             statement.accept(this);
         }
-    }
-
-    public Map<String, Object> getValueOfVariable() {
-        return valueOfVariable;
     }
 
     @Override
@@ -106,7 +94,14 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     @Override
     public Object visit(Expression.Assignment assignment) {
-        return null;
+        Expression expression = assignment.expression();
+        Object evaluated = evaluate(expression);
+        Token identifier = assignment.identifier();
+        if (identifier.content().isEmpty()) {
+            throw new IllegalArgumentException("Expected identifier");
+        }
+        Context.valueOfVariable(identifier.content().get(), evaluated);
+        return evaluated;
     }
 
     @Override
@@ -152,24 +147,25 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
             throw new IllegalArgumentException("variable identifier expected");
         }
         Object value = evaluate(variableDeclaration.expression());
+        final String variableName = token.content().get();
         switch (value) {
-            case null -> this.valueOfVariable.put(token.content().get(), TokenKind.NIL.symbol());
-            case String str -> this.valueOfVariable.put(token.content().get(), "'" + str + "'");
+            case null -> Context.valueOfVariable(variableName, TokenKind.NIL.symbol());
+            case String str -> Context.valueOfVariable(variableName, "'" + str + "'");
             case Double d -> {
                 double num = d;
                 if (num == (int) num) {
-                    this.valueOfVariable.put(token.content().get(), d.intValue());
+                    Context.valueOfVariable(variableName, d.intValue());
                 } else if (num == (long) num) {
-                    this.valueOfVariable.put(token.content().get(), d.longValue());
+                    Context.valueOfVariable(variableName, d.longValue());
                 } else if (num == (float) num) {
-                    this.valueOfVariable.put(token.content().get(), d.floatValue());
+                    Context.valueOfVariable(variableName, d.floatValue());
                 } else {
-                    this.valueOfVariable.put(token.content().get(), d);
+                    Context.valueOfVariable(variableName, d);
                 }
             }
             case Boolean bool ->
-                    this.valueOfVariable.put(token.content().get(), bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
-            default -> this.valueOfVariable.put(token.content().get(), value);
+                    Context.valueOfVariable(variableName, bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
+            default -> Context.valueOfVariable(variableName, value);
         }
     }
 
@@ -203,7 +199,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         if (token.content().isEmpty()) {
             throw new IllegalArgumentException("Expected <id> content value");
         }
-        Expression expression = scopedVariables.get(token.content().get());
+        Expression expression = Context.assignmentExpression(token.content().get());
         return evaluate(expression);
     }
 

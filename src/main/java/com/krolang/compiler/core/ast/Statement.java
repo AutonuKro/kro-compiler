@@ -1,6 +1,6 @@
 package com.krolang.compiler.core.ast;
 
-import com.krolang.compiler.core.lexer.Token;
+import com.krolang.compiler.core.lox.Token;
 
 /**
  * @author autonu.kro
@@ -10,6 +10,7 @@ public interface Statement {
     void accept(Visitor visitor);
 
     interface Visitor {
+
         void visit(ExpressionStatement expressionStatement);
 
         void visit(PrintStatement printStatement);
@@ -18,6 +19,7 @@ public interface Statement {
     }
 
     record ExpressionStatement(Expression expression) implements Statement {
+
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);
@@ -25,6 +27,7 @@ public interface Statement {
     }
 
     record PrintStatement(Expression expression) implements Statement {
+
         @Override
         public void accept(Visitor visitor) {
             visitor.visit(this);

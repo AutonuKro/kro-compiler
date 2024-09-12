@@ -1,11 +1,8 @@
 package com.krolang.compiler.core;
 
-import com.krolang.compiler.core.ast.Expression;
-import com.krolang.compiler.core.ast.Statement;
-import com.krolang.compiler.core.lexer.Lexer;
-import com.krolang.compiler.core.lexer.Token;
-import com.krolang.compiler.core.parser.Interpreter;
-import com.krolang.compiler.core.parser.Parser;
+import com.krolang.compiler.core.ast.*;
+import com.krolang.compiler.core.lox.Lexer;
+import com.krolang.compiler.core.lox.Token;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -42,8 +39,7 @@ public class Compiler implements Serializable {
             List<Token> tokens = lexer.tokenize();
             Parser parser = new Parser(tokens);
             List<Statement> statements = parser.parse();
-            Map<String, Expression> scopeVariables = parser.getScopedVariables();
-            Interpreter interpreter = new Interpreter(scopeVariables, statements);
+            Interpreter interpreter = new Interpreter(statements);
             interpreter.interpret();
             return 0;
         }
@@ -54,13 +50,9 @@ public class Compiler implements Serializable {
         List<Token> tokens = lexer.tokenize(input);
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        scopeVariables.putAll(parser.getScopedVariables());
-        Interpreter interpreter = new Interpreter(scopeVariables, statements);
+        System.out.println("After parsing");
+        Context.debug();
+        Interpreter interpreter = new Interpreter(statements);
         interpreter.interpret();
-        Map<String, Object> valueOfVariables = interpreter.getValueOfVariable();
-        for (Map.Entry<String, Object> entry : valueOfVariables.entrySet()) {
-            String out = "$%s: %s";
-            System.out.printf((out) + "%n%n", entry.getKey(), entry.getValue());
-        }
     }
 }
