@@ -29,24 +29,21 @@ public class Main implements Callable<Integer> {
     public Integer call() {
         if (file == null) {
             Scanner scanner = new Scanner(System.in);
+            OUT.println();
+            OUT.println("| Welcome to KroLang -- Version 0.0.1");
+            OUT.println();
             Compiler compiler = new Compiler();
-            OUT.println();
-            OUT.println("| Welcome to krolang -- Version 0.0.1");
-            OUT.println();
             while (true) {
-                OUT.print("> ");
+                OUT.print(">>> ");
                 String input = scanner.nextLine();
                 if ("\\q".equals(input)) {
                     OUT.println("Good bye");
                     return 0;
                 }
-                if (!input.endsWith(";")) {
-                    input = input + ";";
-                }
                 try {
                     compiler.compile(input);
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
             }

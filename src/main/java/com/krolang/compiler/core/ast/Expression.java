@@ -55,7 +55,7 @@ public interface Expression {
         }
     }
 
-    record Variable(Token identifier, Token type, Expression expression) implements Expression {
+    record Variable(Token identifier) implements Expression {
 
         @Override
         public Object accept(Visitor visitor) {
@@ -70,5 +70,4 @@ public interface Expression {
             return visitor.visit(this);
         }
     }
-
 }

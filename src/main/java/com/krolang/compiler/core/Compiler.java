@@ -1,6 +1,9 @@
 package com.krolang.compiler.core;
 
-import com.krolang.compiler.core.ast.*;
+import com.krolang.compiler.core.ast.Expression;
+import com.krolang.compiler.core.ast.Interpreter;
+import com.krolang.compiler.core.ast.Parser;
+import com.krolang.compiler.core.ast.Statement;
 import com.krolang.compiler.core.lox.Lexer;
 import com.krolang.compiler.core.lox.Token;
 
@@ -35,7 +38,7 @@ public class Compiler implements Serializable {
             throw new IOException("Source file is required");
         }
         try (Stream<String> lines = Files.lines(sourceFilePath)) {
-            Lexer lexer = new Lexer(lines.toList());
+            Lexer lexer = new Lexer(lines.toList(), sourceFilePath.toAbsolutePath().toString());
             List<Token> tokens = lexer.tokenize();
             Parser parser = new Parser(tokens);
             List<Statement> statements = parser.parse();
@@ -46,12 +49,10 @@ public class Compiler implements Serializable {
     }
 
     public void compile(String input) {
-        Lexer lexer = new Lexer(null);
+        Lexer lexer = new Lexer(null, "'<CLI>'");
         List<Token> tokens = lexer.tokenize(input);
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        System.out.println("After parsing");
-        Context.debug();
         Interpreter interpreter = new Interpreter(statements);
         interpreter.interpret();
     }

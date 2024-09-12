@@ -16,7 +16,8 @@ Run your program
 program                     ->      declaration* EOF
 declaration                 ->      variableDeclaration | statement
 variableDeclaration         ->      "Let" IDENTIFIER ":" ( "Num" | "Str" ) ( "=" expression ) ? ";"
-statement                   ->      exprStmt | printStmt
+statement                   ->      exprStmt | printStmt | codeBlock
+codeBlock                   ->      "{" declaration* "}"
 exprStmt                    ->      expression ";"
 printStmt                   ->      "Print" "->" expression ";"
 expression                  ->      assignment | equality

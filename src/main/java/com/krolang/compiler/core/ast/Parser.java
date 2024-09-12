@@ -1,5 +1,6 @@
 package com.krolang.compiler.core.ast;
 
+import com.krolang.compiler.core.SyntaxError;
 import com.krolang.compiler.core.lox.Token;
 import com.krolang.compiler.core.lox.TokenKind;
 
@@ -41,52 +42,67 @@ public class Parser implements Serializable {
 
     private Statement variableDeclaration() {
         if (!match(TokenKind.IDENTIFIER)) {
-            throw new IllegalArgumentException("Invalid token expected: <id>");
+            throw new SyntaxError(peek(), TokenKind.IDENTIFIER.symbol());
         }
         Token identifier = previous();
         if (!match(TokenKind.COL)) {
-            throw new IllegalArgumentException("Invalid token expected: :");
+            throw new SyntaxError(peek(), TokenKind.COL.symbol());
         }
         if (!match(TokenKind.NUM, TokenKind.STR, TokenKind.BOOL)) {
-            throw new IllegalArgumentException("Invalid token expected: Num or Str or Bool");
+            throw new SyntaxError(peek(), "<type>");
         }
         if (match(TokenKind.ASSIGN)) {
             Expression expression = expression();
             if (!match(TokenKind.SEMI)) {
-                throw new IllegalArgumentException("Invalid token expected: ;");
+                throw new SyntaxError(peek(), TokenKind.SEMI.symbol());
             }
             if (identifier.content().isEmpty()) {
-                throw new IllegalArgumentException("Expecting <id> token value");
+                throw new SyntaxError(peek(), TokenKind.IDENTIFIER.symbol());
             }
-            Context.assignmentExpression(identifier.content().get(), expression);
+            Context.defineExpression(identifier.content().get(), expression);
             return new Statement.VariableDeclaration(identifier, expression);
         }
         if (!match(TokenKind.SEMI)) {
-            throw new IllegalArgumentException("Invalid token expected: ;");
+            throw new SyntaxError(peek(), TokenKind.SEMI.symbol());
         }
         if (identifier.content().isEmpty()) {
-            throw new IllegalArgumentException("Expecting <id> token value");
+            throw new SyntaxError(peek(), TokenKind.IDENTIFIER.symbol());
         }
-        Expression nilExpr = new Expression.Literal(new Token(TokenKind.NIL, Optional.empty()));
-        Context.assignmentExpression(identifier.content().get(), nilExpr);
+        Expression nilExpr = new Expression.Literal(new Token(TokenKind.NIL, Optional.empty(), identifier.source(), identifier.line()));
+        Context.defineExpression(identifier.content().get(), nilExpr);
         return new Statement.VariableDeclaration(identifier, nilExpr);
     }
 
     private Statement statement() {
         if (match(TokenKind.PRINT)) {
             if (!match(TokenKind.RIGHT_ARROW)) {
-                throw new IllegalArgumentException("Invalid token expected: ->");
+                throw new SyntaxError(peek(), TokenKind.RIGHT_ARROW.symbol());
             }
             return printStmt();
+        }
+        if (match(TokenKind.OPEN_CURLY)) {
+            return new Statement.CodeBlock(codeBlock());
         } else {
             return exprStmt();
         }
     }
 
+    private List<Statement> codeBlock() {
+        final List<Statement> statements = new ArrayList<>();
+        while (!check(TokenKind.CLOSE_CURLY) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+        if (!match(TokenKind.CLOSE_CURLY)) {
+            throw new SyntaxError(peek(), TokenKind.CLOSE_PARENTHESIS.symbol());
+        }
+        System.out.println(statements);
+        return statements;
+    }
+
     private Statement exprStmt() {
         Expression expression = expression();
         if (!match(TokenKind.SEMI)) {
-            throw new IllegalArgumentException("Invalid token expected: ;");
+            throw new SyntaxError(peek(), TokenKind.SEMI.symbol());
         }
         return new Statement.ExpressionStatement(expression);
     }
@@ -94,7 +110,7 @@ public class Parser implements Serializable {
     private Statement printStmt() {
         Expression expression = expression();
         if (!match(TokenKind.SEMI)) {
-            throw new IllegalArgumentException("Invalid token expected: ;");
+            throw new SyntaxError(peek(), TokenKind.SEMI.symbol());
         }
         return new Statement.PrintStatement(expression);
     }
@@ -104,16 +120,14 @@ public class Parser implements Serializable {
     }
 
     private Expression assignment() {
-        //TODO: Here lies problem
-        // a = a+1 recursion
         Expression expression = equality();
         Token identifier = previous();
         if (identifier.content().isEmpty()) {
-            throw new IllegalArgumentException("Expected an identifier");
+            throw new SyntaxError(peek(), TokenKind.IDENTIFIER.symbol());
         }
         if (match(TokenKind.ASSIGN)) {
             Expression assignment = assignment();
-            Context.assignmentExpression(identifier.content().get(), assignment);
+            Context.defineExpression(identifier.content().get(), assignment);
             return new Expression.Assignment(identifier, assignment);
         }
         return expression;
@@ -169,16 +183,18 @@ public class Parser implements Serializable {
     }
 
     private Expression primary() {
-        if (match(TokenKind.NUM_LIT, TokenKind.STR_LIT, TokenKind.TRUE, TokenKind.FALSE, TokenKind.NIL, TokenKind.IDENTIFIER)) {
+        if (match(TokenKind.NUM_LIT, TokenKind.STR_LIT, TokenKind.TRUE, TokenKind.FALSE, TokenKind.NIL)) {
             return new Expression.Literal(previous());
+        } else if (match(TokenKind.IDENTIFIER)) {
+            return new Expression.Variable(previous());
         } else if (match(TokenKind.OPEN_PARENTHESIS)) {
             Expression expression = expression();
             if (!match(TokenKind.CLOSE_PARENTHESIS)) {
-                throw new RuntimeException("Invalid token expected : )");
+                throw new SyntaxError(peek(), TokenKind.CLOSE_PARENTHESIS.symbol());
             }
             return new Expression.Grouping(expression);
         }
-        throw new RuntimeException("Invalid token: " + peek());
+        throw new SyntaxError(peek(), TokenKind.OPEN_PARENTHESIS.symbol());
     }
 
     /**

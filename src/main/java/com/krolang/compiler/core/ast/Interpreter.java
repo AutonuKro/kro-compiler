@@ -78,18 +78,14 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     @Override
     public Object visit(Expression.Variable variable) {
-        Token type = variable.type();
-        if (variable.expression() == null) {
-            return null;
+        Token identifier = variable.identifier();
+        if (identifier == null) {
+            throw new IllegalArgumentException("Invalid identifier");
         }
-        Object object = evaluate(variable.expression());
-        return switch (object) {
-            case null -> null;
-            case String str when TokenKind.STR == type.tokenKind() -> str;
-            case Double num when TokenKind.NUM == type.tokenKind() -> num;
-            case Boolean bool when (TokenKind.TRUE == type.tokenKind() || TokenKind.FALSE == type.tokenKind()) -> bool;
-            default -> throw new IllegalArgumentException("Invalid type, mismatch occurred");
-        };
+        if (identifier.content().isEmpty()) {
+            throw new IllegalArgumentException("Expected identifier content");
+        }
+        return Context.findVariable(identifier.content().get(), identifier.source(), identifier.line());
     }
 
     @Override
@@ -100,7 +96,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         if (identifier.content().isEmpty()) {
             throw new IllegalArgumentException("Expected identifier");
         }
-        Context.valueOfVariable(identifier.content().get(), evaluated);
+        Context.defineVariable(identifier.content().get(), evaluated);
         return evaluated;
     }
 
@@ -149,23 +145,19 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         Object value = evaluate(variableDeclaration.expression());
         final String variableName = token.content().get();
         switch (value) {
-            case null -> Context.valueOfVariable(variableName, TokenKind.NIL.symbol());
-            case String str -> Context.valueOfVariable(variableName, "'" + str + "'");
-            case Double d -> {
-                double num = d;
-                if (num == (int) num) {
-                    Context.valueOfVariable(variableName, d.intValue());
-                } else if (num == (long) num) {
-                    Context.valueOfVariable(variableName, d.longValue());
-                } else if (num == (float) num) {
-                    Context.valueOfVariable(variableName, d.floatValue());
-                } else {
-                    Context.valueOfVariable(variableName, d);
-                }
-            }
+            case null -> Context.defineVariable(variableName, TokenKind.NIL.symbol());
+            case String str -> Context.defineVariable(variableName, str);
+            case Double d -> Context.defineVariable(variableName, d);
             case Boolean bool ->
-                    Context.valueOfVariable(variableName, bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
-            default -> Context.valueOfVariable(variableName, value);
+                    Context.defineVariable(variableName, bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
+            default -> Context.defineVariable(variableName, value);
+        }
+    }
+
+    @Override
+    public void visit(Statement.CodeBlock codeBlock) {
+        for (Statement statement : codeBlock.statements()) {
+            statement.accept(this);
         }
     }
 
@@ -199,7 +191,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         if (token.content().isEmpty()) {
             throw new IllegalArgumentException("Expected <id> content value");
         }
-        Expression expression = Context.assignmentExpression(token.content().get());
+        Expression expression = Context.findExpression(token.content().get());
         return evaluate(expression);
     }
 
