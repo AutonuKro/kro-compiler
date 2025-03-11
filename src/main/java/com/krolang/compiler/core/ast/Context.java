@@ -1,7 +1,6 @@
 package com.krolang.compiler.core.ast;
 
 import com.krolang.compiler.core.CompilationError;
-import com.krolang.compiler.core.lox.Token;
 import com.krolang.compiler.core.lox.TokenKind;
 
 import java.util.LinkedHashMap;
