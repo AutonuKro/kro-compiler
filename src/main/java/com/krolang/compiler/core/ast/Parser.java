@@ -95,7 +95,6 @@ public class Parser implements Serializable {
         if (!match(TokenKind.CLOSE_CURLY)) {
             throw new SyntaxError(peek(), TokenKind.CLOSE_PARENTHESIS.symbol());
         }
-        System.out.println(statements);
         return statements;
     }
 
@@ -122,7 +121,7 @@ public class Parser implements Serializable {
     private Expression assignment() {
         Expression expression = equality();
         Token identifier = previous();
-        if (identifier.content().isEmpty()) {
+        if (!TokenKind.NIL.equals(identifier.tokenKind()) && identifier.content().isEmpty()) {
             throw new SyntaxError(peek(), TokenKind.IDENTIFIER.symbol());
         }
         if (match(TokenKind.ASSIGN)) {
@@ -251,7 +250,8 @@ public class Parser implements Serializable {
      *
      * @param tokenKinds to match
      */
-    private boolean match(TokenKind... tokenKinds) {
+    private boolean
+    match(TokenKind... tokenKinds) {
         for (TokenKind tokenKind : tokenKinds) {
             if (check(tokenKind)) {
                 consume();

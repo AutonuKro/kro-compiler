@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * @author autonu.kro
  */
 @Command(name = "kro", mixinStandardHelpOptions = true)
-public class Main implements Callable<Integer> {
+public class KroLang implements Callable<Integer> {
 
     private static final PrintStream OUT = System.out;
 
@@ -22,7 +22,7 @@ public class Main implements Callable<Integer> {
     private File file;
 
     public static void main(String[] args) {
-        new CommandLine(new Main()).execute(args);
+        new CommandLine(new KroLang()).execute(args);
     }
 
     @Override
@@ -44,7 +44,6 @@ public class Main implements Callable<Integer> {
                     compiler.compile(input);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
-                    e.printStackTrace();
                 }
             }
         }

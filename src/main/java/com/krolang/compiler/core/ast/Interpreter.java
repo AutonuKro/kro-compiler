@@ -96,7 +96,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         if (identifier.content().isEmpty()) {
             throw new IllegalArgumentException("Expected identifier");
         }
-        Context.defineVariable(identifier.content().get(), evaluated);
+        Context.defineVariable(identifier.content().get(), evaluated, identifier.source(), identifier.line());
         return evaluated;
     }
 
@@ -145,12 +145,12 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         Object value = evaluate(variableDeclaration.expression());
         final String variableName = token.content().get();
         switch (value) {
-            case null -> Context.defineVariable(variableName, TokenKind.NIL.symbol());
-            case String str -> Context.defineVariable(variableName, str);
-            case Double d -> Context.defineVariable(variableName, d);
+            case null -> Context.defineVariable(variableName, null, token.source(), token.line());
+            case String str -> Context.defineVariable(variableName, str, token.source(), token.line());
+            case Double d -> Context.defineVariable(variableName, d, token.source(), token.line());
             case Boolean bool ->
-                    Context.defineVariable(variableName, bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol());
-            default -> Context.defineVariable(variableName, value);
+                    Context.defineVariable(variableName, bool ? TokenKind.TRUE.symbol() : TokenKind.FALSE.symbol(), token.source(), token.line());
+            default -> Context.defineVariable(variableName, value, token.source(), token.line());
         }
     }
 
