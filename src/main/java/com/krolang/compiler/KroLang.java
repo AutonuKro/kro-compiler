@@ -44,6 +44,7 @@ public class KroLang implements Callable<Integer> {
                     compiler.compile(input);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -53,6 +54,7 @@ public class KroLang implements Callable<Integer> {
             return compiler.compile();
         } catch (Exception e) {
             OUT.println(e.getMessage());
+            e.printStackTrace();
             return 64;
         }
     }

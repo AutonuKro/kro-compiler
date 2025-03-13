@@ -15,7 +15,7 @@ public record Token(TokenKind tokenKind, Optional<String> content, String source
     public static Token from(String symbol, String source, long line) {
         Optional<TokenKind> optionalTokenKind = TokenKind.of(symbol);
         if (optionalTokenKind.isPresent()) {
-            return new Token(optionalTokenKind.get(), Optional.empty(), source, line);
+            return new Token(optionalTokenKind.get(), Optional.of(symbol), source, line);
         }
         if (symbol.matches(STRING_PATTERN)) {
             return new Token(TokenKind.STR_LIT, Optional.of(symbol), source, line);

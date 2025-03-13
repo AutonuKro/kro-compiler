@@ -24,7 +24,7 @@ public enum TokenKind {
     PLUS("+"),
     MINUS("-"),
     MULTIPLICATION("*"),
-    DIVISION("\\"),
+    DIVISION("/"),
 
     EQ("=="),
     NOT_EQ("!="),
@@ -48,7 +48,7 @@ public enum TokenKind {
     FUNC("Fun"),
     IF("If"),
     ELSE("Else"),
-    ELIF("ElIf"),
+    ELIF("Elif"),
     FOR("For"),
     CLASS("Class"),
     SELF("Self"),
@@ -74,7 +74,7 @@ public enum TokenKind {
 
     public static Optional<TokenKind> of(String symbol) {
         for (TokenKind kind : values()) {
-            if (kind.symbol.equals(symbol)) {
+            if (kind.symbol().equals(symbol)) {
                 return Optional.of(kind);
             }
         }

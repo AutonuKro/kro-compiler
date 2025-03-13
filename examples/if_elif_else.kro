@@ -1,0 +1,9 @@
+If 1 == 2 -> {
+    Print -> True;
+} Elif 1 == (4/4) -> {
+    Print -> False;
+} Elif 0 == 0 -> {
+    Print -> 'Zero';
+} Else -> {
+    Print -> 'Hello, World';
+}

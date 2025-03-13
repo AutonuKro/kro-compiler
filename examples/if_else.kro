@@ -1,0 +1,5 @@
+If 1 == 2 -> {
+    Print -> True;
+} Else -> {
+    Print -> 'Hello, World';
+}

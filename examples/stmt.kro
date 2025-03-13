@@ -18,3 +18,13 @@ Fun foo(input: []Num) -> {
 }
 
 Fun add (a: Num, b: Num): Num -> a + b;
+
+If True -> {
+    Ret True;
+}
+
+If True -> {
+    Ret True;
+} Elif False -> {
+    Ret False;
+}

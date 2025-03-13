@@ -1,9 +1,12 @@
 package com.krolang.compiler.core.ast;
 
+import com.krolang.compiler.core.CompilationError;
 import com.krolang.compiler.core.lox.Token;
 import com.krolang.compiler.core.lox.TokenKind;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * @author autonu.kro
@@ -159,6 +162,40 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
         for (Statement statement : codeBlock.statements()) {
             statement.accept(this);
         }
+    }
+
+    @Override
+    public void visit(Statement.IfStatement ifStatement) {
+        Expression boolExp = ifStatement.boolExpression();
+        Queue<Statement.ElifStatement> elifStatements = ifStatement.elifStatements();
+        Statement elseStatement = ifStatement.elseStatement();
+        boolean isTrue = (boolean) evaluate(boolExp);
+        if (isTrue) {
+            ifStatement.statement().accept(this);
+        }
+        while (!isTrue && !elifStatements.isEmpty()) {
+            Statement.ElifStatement elifStatement = elifStatements.poll();
+            isTrue = (boolean) evaluate(elifStatement.boolExpression());
+            elifStatement.accept(this);
+        }
+        if (!isTrue  && elseStatement != null) {
+            elseStatement.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(Statement.ElifStatement elifStatement) {
+        Expression boolExpression = elifStatement.boolExpression();
+        boolean isTrue = (boolean) evaluate(boolExpression);
+        if (isTrue) {
+            elifStatement.statement().accept(this);
+        }
+    }
+
+    @Override
+    public void visit(Statement.ElseStatement elseStatement) {
+        System.out.println(elseStatement);
+        elseStatement.accept(this);
     }
 
     private Object evaluate(Expression expression) {
@@ -431,9 +468,9 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
                 throw new IllegalArgumentException("Operation '<=' can not be done on different types");
             }
         }
-        if (left instanceof String letStr) {
+        if (left instanceof String leftStr) {
             if (right instanceof String rightStr) {
-                return letStr.compareTo(rightStr) <= 0;
+                return leftStr.compareTo(rightStr) <= 0;
             } else {
                 throw new IllegalArgumentException("Operation '<=' can not be done on different types");
             }

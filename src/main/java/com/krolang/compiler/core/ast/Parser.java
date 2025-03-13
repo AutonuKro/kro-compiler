@@ -5,9 +5,7 @@ import com.krolang.compiler.core.lox.Token;
 import com.krolang.compiler.core.lox.TokenKind;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author autonu.kro
@@ -80,11 +78,54 @@ public class Parser implements Serializable {
             }
             return printStmt();
         }
+        if (match(TokenKind.IF)) {
+            return ifBlock();
+        }
         if (match(TokenKind.OPEN_CURLY)) {
             return new Statement.CodeBlock(codeBlock());
         } else {
             return exprStmt();
         }
+    }
+
+    private Statement ifBlock() {
+        Expression expression = expression();
+        if (expression instanceof Expression.Assignment) {
+            throw new SyntaxError(peek(), TokenKind.ASSIGN.symbol());
+        }
+        if (!match(TokenKind.RIGHT_ARROW)) {
+            throw new SyntaxError(peek(), TokenKind.RIGHT_ARROW.symbol());
+        }
+        Statement statement = statement();
+        Queue<Statement.ElifStatement> elifStatements = new ArrayDeque<>();
+        while (match(TokenKind.ELIF)) {
+            elifStatements.offer(elifBlock());
+        }
+        Statement elseStatement = null;
+        if (match(TokenKind.ELSE)) {
+             elseStatement = elseBlock();
+        }
+        return new Statement.IfStatement(expression, statement, elifStatements, elseStatement);
+    }
+
+    private Statement.ElifStatement elifBlock() {
+        Expression expression = expression();
+        if (expression instanceof Expression.Assignment) {
+            throw new SyntaxError(peek(), TokenKind.ASSIGN.symbol());
+        }
+        if (!match(TokenKind.RIGHT_ARROW)) {
+            throw new SyntaxError(peek(), TokenKind.RIGHT_ARROW.symbol());
+        }
+        Statement statement = statement();
+        return new Statement.ElifStatement(expression, statement);
+    }
+
+    private Statement elseBlock() {
+        if (!match(TokenKind.RIGHT_ARROW)) {
+            throw new SyntaxError(peek(), TokenKind.RIGHT_ARROW.symbol());
+        }
+        Statement statement = statement();
+        return new Statement.ElseStatement(statement);
     }
 
     private List<Statement> codeBlock() {
@@ -250,8 +291,7 @@ public class Parser implements Serializable {
      *
      * @param tokenKinds to match
      */
-    private boolean
-    match(TokenKind... tokenKinds) {
+    private boolean match(TokenKind... tokenKinds) {
         for (TokenKind tokenKind : tokenKinds) {
             if (check(tokenKind)) {
                 consume();

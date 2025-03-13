@@ -16,7 +16,10 @@ Run your program
 program                     ->      declaration* EOF
 declaration                 ->      variableDeclaration | statement
 variableDeclaration         ->      "Let" IDENTIFIER ":" ( "Num" | "Str" ) ( "=" expression ) ? ";"
-statement                   ->      exprStmt | printStmt | codeBlock
+statement                   ->      exprStmt | printStmt | codeBlock | ifBlock
+ifBlock                     ->      "If" expression "->" statement elifBlock* elseBlock?
+elifBlock                   ->      "Elif" expression "->" statement
+elseBlock                   ->      "Else" -> statement
 codeBlock                   ->      "{" declaration* "}"
 exprStmt                    ->      expression ";"
 printStmt                   ->      "Print" "->" expression ";"
