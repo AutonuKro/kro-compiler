@@ -194,8 +194,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     @Override
     public void visit(Statement.ElseStatement elseStatement) {
-        System.out.println(elseStatement);
-        elseStatement.accept(this);
+        elseStatement.statement().accept(this);
     }
 
     private Object evaluate(Expression expression) {

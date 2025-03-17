@@ -1,9 +1,10 @@
-If 1 == 2 -> {
+If 1 == 1 -> {
     Print -> True;
 } Elif 1 == (4/4) -> {
-    Print -> False;
-} Elif 0 == 0 -> {
-    Print -> 'Zero';
+    Print -> '4 divided 4 equal to 1';
+}
+If 0 == 0 -> {
+    Print -> 'Zero equal Zero';
 } Else -> {
     Print -> 'Hello, World';
 }
