@@ -15,7 +15,10 @@ Run your program
 ```markdown
 program                     ->      declaration* EOF
 declaration                 ->      variableDeclaration | statement
-variableDeclaration         ->      "Let" IDENTIFIER ":" ( "Num" | "Str" ) ( "=" expression ) ? ";"
+variableDeclaration         ->      "Let" IDENTIFIER ":" type ( "=" expression ) ? ";"
+type                        ->      baseType listSpecifier?
+baseType                    ->      "Num" | "Str" | "Bool"
+listSpecifier               ->      "[" NUM_LIT? "]"
 statement                   ->      exprStmt | printStmt | codeBlock | ifBlock
 ifBlock                     ->      "If" expression "->" statement elifBlock* elseBlock?
 elifBlock                   ->      "Elif" expression "->" statement

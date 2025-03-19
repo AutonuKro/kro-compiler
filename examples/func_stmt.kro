@@ -1,4 +1,4 @@
-Fun main(args:Num,argv:[]Str):Num -> {
+Fun main(args:Num,argv:Str[]):Num -> {
     //single comments
     Let d: Str = 'Autonu';
     Let a: Num = 10;
@@ -8,7 +8,7 @@ Fun main(args:Num,argv:[]Str):Num -> {
     Ret 0;
 }
 
-Fun foo(input: []Num) -> {
+Fun foo(input:Num[]) -> {
     Let c: Num = 10 - 9;
     Let ans: Num;
     For _, x in input -> {
@@ -18,13 +18,3 @@ Fun foo(input: []Num) -> {
 }
 
 Fun add (a: Num, b: Num): Num -> a + b;
-
-If True -> {
-    Ret True;
-}
-
-If True -> {
-    Ret True;
-} Elif False -> {
-    Ret False;
-}

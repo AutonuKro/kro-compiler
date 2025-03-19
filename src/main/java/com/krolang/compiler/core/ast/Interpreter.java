@@ -21,6 +21,7 @@ public class Interpreter implements Expression.Visitor, Statement.Visitor {
 
     public void interpret() {
         for (Statement statement : statements) {
+            System.out.println(statement);
             statement.accept(this);
         }
     }

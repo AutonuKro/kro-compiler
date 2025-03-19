@@ -1,0 +1,4 @@
+Let a:Num[];
+Let b:Num[4];
+Let c:Str[5] = ['A','B', 'C','D','E'];
+Print -> c[0];
